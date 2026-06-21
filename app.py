@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import folium
-import os
 from streamlit_folium import st_folium
 from sklearn.cluster import DBSCAN
 import plotly.express as px
@@ -11,26 +10,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import roc_auc_score, classification_report
 import warnings
-
 warnings.filterwarnings('ignore')
 
 # --- CONFIGURATION ---
 st.set_page_config(layout="wide", page_title="Gridlock 2.0: Unified Intelligence", page_icon="🚦")
 
 # =====================================================================
-# ROBUST DATA INGESTION
+# INGEST & CLEAN
 # =====================================================================
 @st.cache_data
 def load_data():
-    # Looks for the file in multiple potential path variations to avoid case-sensitivity crashes
-    paths = ["data/theme1_clean_final.csv", "Data/theme1_clean_final.csv", "theme1_clean_final.csv"]
-    file_path = next((p for p in paths if os.path.exists(p)), None)
-    
-    if not file_path:
-        st.error(f"FATAL ERROR: Could not find theme1_clean_final.csv. Current directory structure: {os.listdir()}")
-        st.stop()
-        
-    df = pd.read_csv(file_path)
+    df = pd.read_csv("data/theme1_clean_final.csv")
     
     if 'created_datetime' in df.columns:
         df['created_datetime'] = pd.to_datetime(df['created_datetime'], errors='coerce')
@@ -52,7 +42,7 @@ def load_data():
     return df, ml_df, approved_df
 
 # =====================================================================
-# REGISTRY & ANALYTICS FUNCTIONS
+# UNIFIED HOTSPOT REGISTRY
 # =====================================================================
 @st.cache_data
 def build_registry(approved_df):
@@ -90,6 +80,9 @@ def build_registry(approved_df):
     
     return registry, no_junction
 
+# =====================================================================
+# PRESSURE INDEX & SENSITIVITY CHECK
+# =====================================================================
 def compute_pressure(reg, w):
     r = reg.copy()
     r['norm_vol'] = r['total_violations'] / r['total_violations'].max()
@@ -98,6 +91,9 @@ def compute_pressure(reg, w):
     r['pressure'] = w[0]*r['norm_vol'] + w[1]*r['norm_days'] + w[2]*r['norm_dev']
     return r
 
+# =====================================================================
+# RECOMMENDATION ENGINE HELPERS
+# =====================================================================
 def zone_profile(source_df, no_junc_df, zone_value):
     if str(zone_value).startswith('Discovered_Zone_'):
         cluster_id = int(str(zone_value).split('_')[-1])
@@ -183,19 +179,24 @@ if page == "🗺️ Hotspot Command Center":
         labels={'hour': 'Hour (IST)', 'Day': 'Day', 'violation_count': 'Violations'}
     )
     fig.update_traces(xgap=1, ygap=1)
-    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=400, plot_bgcolor='black')
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0), 
+        height=400,
+        plot_bgcolor='black'
+    )
     st.plotly_chart(fig, use_container_width=True)
     
     st.markdown("---")
     
     st.subheader("Unified Pressure Registry (Top 20)")
-    st.info("💡 **Methodology Note:** The Pressure Index is a frequency, persistence, and device-coverage based proxy for parking-induced congestion impact.")
+    st.info("💡 **Methodology Note:** The Pressure Index is a frequency, persistence, and device-coverage based proxy for parking-induced congestion impact. No direct traffic-speed or road-network telemetry was available in the provided dataset.")
     
     st.dataframe(
         registry[['zone_id', 'zone_type', 'daily_avg', 'pressure']].head(20).style.format({"daily_avg": "{:.1f}", "pressure": "{:.3f}"}),
         use_container_width=True
     )
     
+    # Export clean data without intermediate math columns
     export_cols = ['zone_id', 'zone_type', 'total_violations', 'unique_devices', 'active_days', 'daily_avg', 'pressure']
     clean_registry = registry[export_cols]
     
@@ -263,7 +264,7 @@ elif page == "🛠️ Camera Reliability Audit":
     m3.metric("Recall", f"{report['0']['recall']:.3f}")
     m4.metric("Precision", f"{report['0']['precision']:.3f}")
     
-    st.info("💡 **Honest Ceiling:** The model acts as a triage layer, flagging high-rejection devices for manual inspection.")
+    st.info("💡 **Honest Ceiling:** The model is designed to prioritize devices for human inspection, not fully automate the approve/reject decision, since the photo evidence that drives the final human decision isn't present in this dataset.")
     st.caption(f"*Baseline Majority-Class Accuracy Context:* `{default_rate:.2%}`")
 
     st.markdown("---")
@@ -281,6 +282,7 @@ elif page == "🛠️ Camera Reliability Audit":
     col_t, col_r = st.columns([1, 1.2])
     with col_t:
         st.dataframe(faulty_cameras.head(20).style.format({"rejection_rate": "{:.1%}"}), use_container_width=True, height=400)
+        
         st.download_button(
             label="📥 Download Complete Hardware Audit (CSV)",
             data=faulty_cameras.to_csv(index=False).encode('utf-8'),
