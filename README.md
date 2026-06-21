@@ -1,7 +1,9 @@
 # 🚦 Gridlock 2.0: Unified Parking Intelligence Engine
 
+**[🔴 LIVE DASHBOARD: Click Here to Launch Gridlock 2.0](https://gridlock-btp.streamlit.app)**
+
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://gridlock-btp.streamlit.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
