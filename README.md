@@ -48,7 +48,7 @@ Traditional urban traffic enforcement is **patrol-based and reactive**. Current 
 ### 1. Spatial Discovery (DBSCAN)
 We deployed an unsupervised **DBSCAN (Density-Based Spatial Clustering of Applications with Noise)** algorithm over 54,493 orphaned coordinates.
 * **Parameters:** `eps = 0.00045` (Euclidean mapping to roughly ~50m radius bounding boxes), `min_samples = 20`.
-* **Result:** Successfully extracted 112 stable, dense undocumented hotspots, seamlessly merging them into a unified tracking hierarchy alongside known junctions.
+* **Result:** Successfully extracted 273 stable, dense undocumented hotspots, seamlessly merging them into a unified tracking hierarchy alongside known junctions.
 
 ### 2. The Pressure Index
 Because external traffic-speed telemetry was outside the dataset scope, we engineered a deterministic, normalized **Parking Pressure Index ($P$)** to act as a proxy for physical congestion friction:
