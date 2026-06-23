@@ -156,7 +156,7 @@ if page == "🗺️ Hotspot Command Center":
     st.subheader("Global Hotspot Map")
     st.caption("🔵 Named Junctions | 🔴 Discovered DBSCAN Clusters")
     m = folium.Map(location=[12.9716, 77.5946], zoom_start=11, tiles="CartoDB positron")
-    for _, row in registry.head(75).iterrows():
+    for _, row in registry.iterrows():
         color = "blue" if row['zone_type'] == 'named_junction' else "red"
         folium.CircleMarker(
             location=[row['latitude'], row['longitude']],
